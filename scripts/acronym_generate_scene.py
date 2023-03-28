@@ -75,7 +75,7 @@ def main(argv=sys.argv[1:]):
         args.support, mesh_root_dir=args.mesh_root, scale=args.support_scale
     )
     scene = Scene.random_arrangement(object_meshes, support_mesh)
-
+    print(scene._objects)
     # show the random scene in 3D viewer
     scene.colorize().as_trimesh_scene().show()
 

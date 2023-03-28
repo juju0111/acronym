@@ -306,6 +306,8 @@ class Scene(object):
                 self._objects[object_id].visual.face_colors[:, :3] = color
         return self
 
+
+
     def as_trimesh_scene(self):
         """Return trimesh scene representation.
 
@@ -319,12 +321,16 @@ class Scene(object):
                 node_name=obj_id,
                 geom_name=obj_id,
                 transform=self._poses[obj_id],
-            )
+            )            
+
+            axis = trimesh.creation.axis(origin_size=0.015, transform=self._poses[obj_id])
+            trimesh_scene.add_geometry(axis)
+
         return trimesh_scene
 
     @classmethod
     def random_arrangement(
-        cls, object_meshes, support_mesh, distance_above_support=0.002, gaussian=None
+        cls, object_meshes, support_mesh, distance_above_support=0.001, gaussian=None
     ):
         """Generate a random scene by arranging all object meshes on any support surface of a provided support mesh.
 
@@ -399,6 +405,14 @@ def load_grasps(filename):
     else:
         raise RuntimeError("Unknown file ending:", filename)
     return T, success
+
+
+def create_obj_marker(color=[255,255,255], tube_radius=0.001):
+    """
+    Args:
+        color 
+    """
+    pass
 
 
 def create_gripper_marker(color=[0, 0, 255], tube_radius=0.001, sections=6):
