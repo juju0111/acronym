@@ -37,7 +37,7 @@ class Scene(object):
         """Create a scene object."""
         self._objects = {}
         self._poses = {}
-        self._support_objects = []
+        self._support_objects = {}
 
         self.collision_manager = trimesh.collision.CollisionManager()
 
@@ -53,7 +53,7 @@ class Scene(object):
         self._objects[obj_id] = obj_mesh
         self._poses[obj_id] = pose
         if support:
-            self._support_objects.append(obj_mesh)
+            self._support_objects[obj_id] = obj_mesh
 
         self.collision_manager.add_object(name=obj_id, mesh=obj_mesh, transform=pose)
 
@@ -79,7 +79,7 @@ class Scene(object):
         # Add support plane if it is set (although not infinite)
         support_meshes = self._support_objects
 
-        for obj_mesh in support_meshes:
+        for obj_name, obj_mesh in support_meshes.items():
             # get all facets that are aligned with -gravity and bigger than min_area
             support_facet_indices = np.argsort(obj_mesh.facets_area)
             support_facet_indices = [
@@ -117,7 +117,7 @@ class Scene(object):
                     support_polygons.append(polygon[0])
                     support_polygons_T.append(trimesh.transformations.inverse_matrix(T))
 
-        return support_polygons, support_polygons_T
+        return support_polygons, support_polygons_T, obj_name
 
     def _get_random_stable_pose(self, stable_poses, stable_poses_probs):
         """Return a stable pose according to their likelihood.
@@ -153,7 +153,7 @@ class Scene(object):
             bool: Whether a placement pose was found.
             np.ndarray: Homogenous 4x4 matrix describing the object placement pose. Or None if none was found.
         """
-        support_polys, support_T = self._get_support_polygons()
+        support_polys, support_T , sup_obj_name= self._get_support_polygons()
         if len(support_polys) == 0:
             raise RuntimeError("No support polygons found!")
 
@@ -191,6 +191,7 @@ class Scene(object):
                 )
 
             # To avoid collisions with the support surface
+            # sample x,y and append z(distance_above_support)
             pts3d = np.append(pts, distance_above_support)
 
             # Transform plane coordinates into scene coordinates
