@@ -202,7 +202,6 @@ class SceneRenderer:
 
         return color, depth, pc, segmentation
 
-
 def main(argv=sys.argv[1:]):
     parser = make_parser()
     args = parser.parse_args(argv)

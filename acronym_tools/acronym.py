@@ -308,7 +308,6 @@ class Scene(object):
         return self
 
 
-
     def as_trimesh_scene(self):
         """Return trimesh scene representation.
 
