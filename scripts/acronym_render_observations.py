@@ -45,12 +45,8 @@ def make_parser():
         type=str,
         help="HDF5 or JSON File for support object.",
     )
-    parser.add_argument(
-        "--support_scale", default=0.025, help="Scale factor of support mesh."
-    )
-    parser.add_argument(
-        "--mesh_root", default=".", help="Directory used for loading meshes."
-    )
+    parser.add_argument("--support_scale", default=0.025, help="Scale factor of support mesh.")
+    parser.add_argument("--mesh_root", default=".", help="Directory used for loading meshes.")
     parser.add_argument(
         "--show_scene",
         action="store_true",
@@ -99,9 +95,7 @@ class SceneRenderer:
         self._z_near = z_near
         self._scene = pyrender_scene
 
-        self._camera = pyrender.PerspectiveCamera(
-            yfov=fov, aspectRatio=aspect_ratio, znear=z_near
-        )
+        self._camera = pyrender.PerspectiveCamera(yfov=fov, aspectRatio=aspect_ratio, znear=z_near)
 
     def get_trimesh_camera(self):
         """Get a trimesh object representing the camera intrinsics.
@@ -171,6 +165,7 @@ class SceneRenderer:
             innerConeAngle=np.pi / 16,
             outerConeAngle=np.pi / 6.0,
         )
+
         scene.add(light, pose=camera_pose, name="light")
 
         # render the full scene
@@ -187,9 +182,7 @@ class SceneRenderer:
             if node.name == target_id:
                 node.mesh.is_visible = True
                 _, object_depth = renderer.render(scene)
-                mask = np.logical_and(
-                    (np.abs(object_depth - depth) < 1e-6), np.abs(depth) > 0
-                )
+                mask = np.logical_and((np.abs(object_depth - depth) < 1e-6), np.abs(depth) > 0)
                 segmentation[mask] = 1
 
         for node in scene.mesh_nodes:
@@ -202,15 +195,14 @@ class SceneRenderer:
 
         return color, depth, pc, segmentation
 
+
 def main(argv=sys.argv[1:]):
     parser = make_parser()
     args = parser.parse_args(argv)
 
     # load object meshes and generate a random scene
     object_meshes = [load_mesh(o, mesh_root_dir=args.mesh_root) for o in args.objects]
-    support_mesh = load_mesh(
-        args.support, mesh_root_dir=args.mesh_root, scale=args.support_scale
-    )
+    support_mesh = load_mesh(args.support, mesh_root_dir=args.mesh_root, scale=args.support_scale)
     scene = PyrenderScene.random_arrangement(object_meshes, support_mesh)
 
     target_obj = "obj0"
@@ -234,16 +226,12 @@ def main(argv=sys.argv[1:]):
         trimesh_scene.add_geometry(
             trimesh.creation.camera_marker(trimesh_camera),
             node_name="camera",
-            transform=camera_pose.dot(
-                trimesh.transformations.euler_matrix(np.pi, 0, 0)
-            ),
+            transform=camera_pose.dot(trimesh.transformations.euler_matrix(np.pi, 0, 0)),
         )
         trimesh_scene.show()
 
     # render observations
-    color, depth, pc, segmentation = renderer.render(
-        camera_pose=camera_pose, target_id=target_obj
-    )
+    color, depth, pc, segmentation = renderer.render(camera_pose=camera_pose, target_id=target_obj)
 
     # plot everything except point cloud
     f, axarr = plt.subplots(1, 3)
