@@ -1,2 +1,7 @@
 *.pyc
 
+data/grasps
+data/meshes
+script_test.sh
+copied_data.zip
+acronym_tools.egg-info
