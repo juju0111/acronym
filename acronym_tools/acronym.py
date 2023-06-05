@@ -75,7 +75,7 @@ class Scene(object):
 
         support_polygons = []
         support_polygons_T = []
-
+        obj_names = [] 
         # Add support plane if it is set (although not infinite)
         support_meshes = self._support_objects
 
@@ -116,8 +116,9 @@ class Scene(object):
                 if not polygon[0].is_empty and polygon[0].area > min_area:
                     support_polygons.append(polygon[0])
                     support_polygons_T.append(trimesh.transformations.inverse_matrix(T))
+                    obj_names.append(obj_name)
 
-        return support_polygons, support_polygons_T, obj_name
+        return support_polygons, support_polygons_T, obj_names
 
     def _get_random_stable_pose(self, stable_poses, stable_poses_probs):
         """Return a stable pose according to their likelihood.
