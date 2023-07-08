@@ -75,7 +75,11 @@ class Scene(object):
 
         support_polygons = []
         support_polygons_T = []
+<<<<<<< HEAD
         obj_names = [] 
+=======
+        obj_names = []
+>>>>>>> de4543c2998b65754020ae4db2c5970a50c76bea
         # Add support plane if it is set (although not infinite)
         support_meshes = self._support_objects
 
@@ -88,7 +92,6 @@ class Scene(object):
                 if np.isclose(obj_mesh.facets_normal[idx].dot(-gravity), 1.0, atol=0.5)
                 and obj_mesh.facets_area[idx] > min_area
             ]
-
             for inds in support_facet_indices:
                 index = inds
                 normal = obj_mesh.facets_normal[index]
@@ -98,9 +101,9 @@ class Scene(object):
                 vertices = trimesh.transform_points(obj_mesh.vertices, T)[:, :2]
 
                 # find boundary edges for the facet
-                edges = obj_mesh.edges_sorted.reshape((-1, 6))[
-                    obj_mesh.facets[index]
-                ].reshape((-1, 2))
+                edges = obj_mesh.edges_sorted.reshape((-1, 6))[obj_mesh.facets[index]].reshape(
+                    (-1, 2)
+                )
                 group = trimesh.grouping.group_rows(edges, require_count=1)
 
                 # run the polygon conversion
@@ -136,9 +139,7 @@ class Scene(object):
         )
         return inplane_rot.dot(stable_poses[index])
 
-    def find_object_placement(
-        self, obj_mesh, max_iter, distance_above_support, gaussian=None
-    ):
+    def find_object_placement(self, obj_mesh, max_iter, distance_above_support, gaussian=None):
         """Try to find a non-colliding stable pose on top of any support surface.
 
         Args:
@@ -154,7 +155,7 @@ class Scene(object):
             bool: Whether a placement pose was found.
             np.ndarray: Homogenous 4x4 matrix describing the object placement pose. Or None if none was found.
         """
-        support_polys, support_T , sup_obj_name= self._get_support_polygons()
+        support_polys, support_T, sup_obj_name = self._get_support_polygons()
         if len(support_polys) == 0:
             raise RuntimeError("No support polygons found!")
 
@@ -172,14 +173,12 @@ class Scene(object):
         iter = 0
         colliding = True
         while iter < max_iter and colliding:
-
             # Sample position in plane
             if gaussian:
                 while True:
                     p = Point(
                         np.random.normal(
-                            loc=np.array(gaussian[:2])
-                            + support_polys[support_index].centroid,
+                            loc=np.array(gaussian[:2]) + support_polys[support_index].centroid,
                             scale=gaussian[2:],
                         )
                     )
@@ -187,9 +186,7 @@ class Scene(object):
                         pts = [p.x, p.y]
                         break
             else:
-                pts = trimesh.path.polygons.sample(
-                    support_polys[support_index], count=1
-                )
+                pts = trimesh.path.polygons.sample(support_polys[support_index], count=1)
 
             # To avoid collisions with the support surface
             # sample x,y and append z(distance_above_support)
@@ -229,13 +226,9 @@ class Scene(object):
         Returns:
             bool: Whether the object mesh is colliding with anything in the scene.
         """
-        colliding = self.collision_manager.in_collision_single(
-            mesh=mesh, transform=transform
-        )
+        colliding = self.collision_manager.in_collision_single(mesh=mesh, transform=transform)
         if not colliding and min_distance > 0.0:
-            distance = self.collision_manager.min_distance_single(
-                mesh=mesh, transform=transform
-            )
+            distance = self.collision_manager.min_distance_single(mesh=mesh, transform=transform)
             if distance < min_distance - epsilon:
                 colliding = True
         return colliding
@@ -300,14 +293,13 @@ class Scene(object):
         """
         if not specific_objects:
             for obj_id, obj_mesh in self._objects.items():
-                obj_mesh.visual.face_colors[:, :3] = (
-                    trimesh.visual.random_color() * brightness
-                )[:3]
+                obj_mesh.visual.face_colors[:, :3] = (trimesh.visual.random_color() * brightness)[
+                    :3
+                ]
         else:
             for object_id, color in specific_objects.items():
                 self._objects[object_id].visual.face_colors[:, :3] = color
         return self
-
 
     def as_trimesh_scene(self):
         """Return trimesh scene representation.
@@ -322,7 +314,7 @@ class Scene(object):
                 node_name=obj_id,
                 geom_name=obj_id,
                 transform=self._poses[obj_id],
-            )            
+            )
 
             axis = trimesh.creation.axis(origin_size=0.015, transform=self._poses[obj_id])
             trimesh_scene.add_geometry(axis)
@@ -370,11 +362,11 @@ def load_mesh(filename, mesh_root_dir, scale=None):
     """
     if filename.endswith(".json"):
         data = json.load(open(filename, "r"))
-        mesh_fname = data["object"].decode('utf-8')
+        mesh_fname = data["object"].decode("utf-8")
         mesh_scale = data["object_scale"] if scale is None else scale
     elif filename.endswith(".h5"):
         data = h5py.File(filename, "r")
-        mesh_fname = data["object/file"][()].decode('utf-8')
+        mesh_fname = data["object/file"][()].decode("utf-8")
         mesh_scale = data["object/scale"][()] if scale is None else scale
     else:
         raise RuntimeError("Unknown file ending:", filename)
@@ -408,10 +400,10 @@ def load_grasps(filename):
     return T, success
 
 
-def create_obj_marker(color=[255,255,255], tube_radius=0.001):
+def create_obj_marker(color=[255, 255, 255], tube_radius=0.001):
     """
     Args:
-        color 
+        color
     """
     pass
 
